@@ -1,0 +1,40 @@
+.card{
+	height: 300px;
+	width: 300px;
+	border:  2px solid black;
+	perspective: 300px;
+}
+/* the child that can play 3d, and is holdoing the two card faces*/
+ .face-holder{
+	height: 300px;
+	width: 300px;
+	position: relative; /* the children of face-holder will be absolute */
+	transition: all 1s;
+	transform-style: preserve-3d;
+}
+/* the actual face of the card and the face of the back, they need to be a 3d space */
+/* rules for both */
+.card-front, .card-back{
+	position: absolute;
+	/* itit position */
+	top: 0;
+	left: 0;
+	border:  2px red solid;
+	/* do not show the back of the div */
+	backface-visibility: hidden;
+}
+img{
+	height: 300px;
+	width: 300px;
+}
+/* rules for front */
+.card-front{
+	transform: rotateY(180deg);
+}
+/* rules for back */
+.card-back{
+
+}
+.flip{
+	transform: rotateY(-180deg) rotateX(180deg);
+}

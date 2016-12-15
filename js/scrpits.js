@@ -1,181 +1,182 @@
-var theDeck = [];
-const freshDeck = createDeck();
-theDeck = freshDeck;
-var playersHand = [];
-var dealersHand = [];//JS, wait for the dom!
+//----------------------
+// ----GLOBALS----------
+//----------------------
+
+var theDeck = createDeck();
+var playersHand = [] //player1Squares in tictactoe
+var dealersHand = [] //player2Squares in tictactoe
+// var topOfDeck = 4; Could use without shift 
 
 $(document).ready(function(){
-// -------------------------
-// ---------GLOBALS---------
-// -------------------------
-// var theDeck = [];
+
+	$('.reset-game').click(function(){
+		reset();
+	});
+
+	$('.deal-button').click(function(){
+		reset();
+		//Deal stuff goes in here
+		shuffleDeck(); //Deck is now shuffled!
+		// Update player array and DOM
+		//Use shift to remove the top card from the deck.
+		// Shift returns the element removed, so push .shift() onto the hand
+
+		playersHand.push(theDeck.shift()); 
+		dealersHand.push(theDeck.shift()); 
+		playersHand.push(theDeck.shift()); 
+		dealersHand.push(theDeck.shift());
+
+		placeCard('player',1,playersHand[0]);
+		placeCard('player',2,playersHand[1]);
+
+		// Update dealer array and DOM
+		placeCard('dealer',1,dealersHand[0]);
+		placeCard('dealer',2,'deck');
+
+		calculateTotal(playersHand,'player');
+		calculateTotal(dealersHand,'dealer');
 
 
-// 2.Need a way to make the deck
-// createDeck();
+	});
 
-		// 1.Get deal working
-		$('.deal-button').click(function(){
-			//console.log(this);
-			// 3.Shuffle the new deck
-			shuffleDeck();
-			// shift returns the element removed, so push.shift() onto the hand
+	$('.hit-button').click(function(){
+		// console.log(calculateTotal(playersHand,'player'));
+		// var whatThePlayerHas = Number($('.player.total-number').text)
+		if(calculateTotal(playersHand,'player') < 21){
 			playersHand.push(theDeck.shift());
-			// add card one to the dealersHand
-			dealersHand.push(theDeck.shift());
-			// add card two to the playersHand
-			playersHand.push(theDeck.shift());
-			// add card three to the dealersHand
-			dealersHand.push(theDeck.shift());
-
-			// put the first card in the players hand
-			placeCard(playersHand[0], 'player', 1)
-			//put the second card in the players hand
-			placeCard(playersHand[1], 'player', 2)
-
-			// put the first card in the dealers hand
-			placeCard(dealersHand[0], 'dealer', 1)
-			//put the second card in the dealers hand
-			placeCard(dealersHand[1], 'dealer', 2)
-
-			calculateTotal('player',playersHand);
-			calculateTotal('dealer',dealersHand);
-
-
-
-		});
-
-		
-		
-		// 4.Update the DOM with the player cards
-
-		// 5.Get hit working
-		$('.hit-button').click(function(){
-			if(calculateTotal('player', playersHand) < 21){
-			//add a card to the JS and the DOM
-			playersHand.push(theDeck.shift());
-			var slotForNewCard = playersHand.length;
 			var lastCardIndex = playersHand.length-1;
-			placeCard(playersHand[lastCardIndex],'player', slotForNewCard);
-			// update the player
-			calculateTotal( 'player', playersHand);
-			}
-		});
+			var slotForNewCard = playersHand.length;
+			placeCard('player',slotForNewCard,playersHand[lastCardIndex]);
+			calculateTotal(playersHand, 'player');
+		}
+		checkWin();
+	});
 
-		// 6.Put the card in the right place
-		// 7.Update the total
-		// 8.Check if the player busted
-		// 9.Get stand working
-		$('.stand-button').click(function(){
-			// what happens to player? nothing, control now goes to dealer
-			// if dealer has less than 17, dealer draws card
-			var dealerTotal = calculateTotal('dealer', dealersHand)
-			while(dealerTotal < 17){
-				// dealer has less than 17...hit away!
-				dealersHand.push(theDeck.shift());
-				var slotForNewCard = dealersHand.length;
-				var lastCardIndex = dealersHand.length-1;
-				placeCard(dealersHand[lastCardIndex],'dealer', slotForNewCard);
-				// update the dealer
-				dealerTotal = calculateTotal( 'dealer', dealersHand);
-			}
-			// the dealer has 17 or more, player hit stand, check to see who won
-			checkWin();
+	$('.stand-button').click(function(){
+		// stand stuff goes in here
+		// What happens to player now? Nothing.
+		// Control now goes to teh dealer... if dealer has less than 17, draw card.
+		placeCard('dealer',2,dealersHand[1]);
+		var dealerTotal = calculateTotal(dealersHand,'dealer');
+		while(dealerTotal < 17){
+			// Dealer has less than 17... hit away!
+			dealersHand.push(theDeck.shift());
+			var lastCardIndex = dealersHand.length-1;
+			var slotForNewCard = dealersHand.length;
+			placeCard('dealer',slotForNewCard,dealersHand[lastCardIndex]);
+			dealerTotal = calculateTotal(dealersHand,'dealer');
+		}
+		// The dealer has 17 or more. Player hit stand. Check to see who won.
+		checkWin();
 
-		});
-
-
-
-
-		// console.log(theDeck)
+	});
 });
 
-// calculate face cards correctly(count as 10) 11-J, 12-Q, 13-K === 10
-// calculate the proper value for ace (1 or 11)
-		function placeCard(whatCard, who, whichSlot) {
-			var classToTarget = '.' + who + '-cards .card-' + whichSlot;
-			// console.log(classToTarget)
-			$(classToTarget).html('<img src="cards/' + whatCard + '.png">');
+function checkWin(){
+	var playerTotal = calculateTotal(playersHand,'player');
+	var dealerTotal = calculateTotal(dealersHand,'dealer');
+
+	// player has more than 21. Player busts, and loses.
+	if(playerTotal > 21){
+		//Player busted. Put some message in the DOM
+		$('.player-total').html('Player busted, the house wins!')
+	//Deler busted, player is good, player wins.
+	}else if(dealerTotal > 21){
+		// Player safe, dealer busts, put message in DOM
+		$('.dealer-total').html('Dealer busted, Player wins!')
+	//No one busted. See who is higher
+	}else{
+		if((playerTotal > dealerTotal) && (dealerTotal > 16)){
+			// Player won. Say this somewhere in the DOM
+			$('.player-total').html('Player wins!')
+		}else if((dealerTotal > playerTotal) && (dealerTotal > 16)){
+			// Dealer won. Say this somewhere in the DOM
+			$('.dealer-total').html('House wins!')
+		}else{
+			// Tie (push). Say somewhere in the DOM
+			$('.dealer-total').html('Tie, House wins!')
+			$('.player-total').html('Tie, House wins!!')
+
+
+
 		}
+	}
+}
 
-		function calculateTotal(who, theirHand){
-			var cardValue = 0;
-			var total = 0;
-			for(let i = 0; i < theirHand.length; i++){
-				cardValue = Number(theirHand[i].slice(0,-1));
-				if(cardValue > 10){
-					cardValue = 10;
-				}
-				total += cardValue
-			}
-			var classToTarget = '.' + who + '-total-number';
-			$(classToTarget).text(total);
-			return total;
+function reset(){
+	// the deck needs to be reset
+	theDeck = createDeck(); 
+	// the player and dealer hands need to be reset
+	playersHand = [];
+	dealersHand = [];
+	// reset the DOM
+	// - cards
+	$('.card').html('');
+	$('.dealer-total').html('DEALER TOTAL: <span class="dealer-total-number">0</span>')
+	$('.player-total').html('PLAYER TOTAL: <span class="player-total-number">0</span>')
+	// - totals
+	var playerTotal = calculateTotal(playersHand,'player');
+	var dealerTotal = calculateTotal(dealersHand,'dealer');
+
+}
+
+function createDeck(){
+	var newDeck = [];
+	var suits = ['h','s','d','c'];
+	//suits/outter loop
+	for(let s = 0; s < suits.length; s++){ 
+		// card values/inner loop
+		for(let c = 1; c <= 13; c++){
+			newDeck.push(c+suits[s]);
 		}
-		function createDeck(){
-		//fill the deck with
-			// - 52 cards
-			   // - 4 suits (h,s,d,c)
-			   // - 1-13, (11=J, 12=Q, 13=K)
-			   var suits = ['h', 's', 'd', 'c'];
-			   // loop thru all four suits (suits array)
-			   for(let s = 0; s < suits.length; s++){
-			   		// loop thru all 13 cards for each suits
-			   		for(let c = 1; c <= 13; c++){
-			   			theDeck.push(c+suits[s]);
-			   		}
-			   	}
-		// console.log(theDeck);
-			
+	}
+	return newDeck;
+}
+
+function shuffleDeck(){
+	for(let i = 0; i < 9001; i++){
+		var random1 = Math.floor(Math.random() * theDeck.length);
+		var random2 = Math.floor(Math.random() * theDeck.length);
+
+		// switch theDeck[random1] with theDeck[random2]
+		// store the value of theDeck[random1]
+		var temp = theDeck[random1];
+
+		// overwrite theDeck[random1] with theDeck[random2]
+		theDeck[random1] = theDeck[random2];
+
+		// overwrite theDeck[random2] with the temp (what used to be in random1)
+		theDeck[random2] = temp;
+	}
+	console.log(theDeck);		
+}
+
+function placeCard(who, where, whatCard){
+	var classSelector = '.' + who + '-cards .card-' + where;
+						// '.' + 'player' + '-cards .card-' + 'one'
+						// '.player-cards .card-one'
+	$(classSelector).html('<img src="cards/' + whatCard + '.png">');
+	// $('.player-cards .card-one').html('<img src="cards/2d.png">')
+	// if(classSelector = 'dealer- card card-2' )
+}
+
+function calculateTotal(hand, who){
+	var total = 0; // init total to 0
+	var cardValue = 0 // temp var for value of current card
+	for(let i = 0; i < hand.length; i++){
+		//Handle the face cards!
+		cardValue = Number(hand[i].slice(0,-1)); //start at 0 and copy until the last index
+		if(cardValue > 10){
+			cardValue = 10;
 		}
-
-				function checkWin(){
-			playerTotal = calculateTotal('player', playersHand);
-			dealerTotal = calculateTotal('dealer', dealersHand);
-			if(playerTotal > 21){
-				// player busted, put some message in the DOM
-			//Dealer busted, player is good, player wins
-			}else if(dealerTotal > 21){
-				// player safe, dealer busts, put message in DOM
-			// no one busted, see who is higher
-			}else{
-				if(playerTotal > dealerTotal){
-					//player won, say this somewhere in the DOM
-				}else if(dealerTotal > playerTotal){
-					//dealer won, say somewhere in the DOM
-				}else{
-					// its a tie
-				}
-			}
+		if((cardValue == 1) && (total < 11)) {
+			cardValue = 11;
 		}
+		total += cardValue;
+	}
+	// Update the DOM with the new total
+	var classSelector = '.'+who+'-total-number';
+	$(classSelector).text(total);
+	return total;
+}
 
-		// 10.Run the dealer “hit” until it has more than 16
-		// 11.Once dealer has more than 16, checkwin
-		// 12.Post a message after checkwin
-
-		function reset(){
-			// the deck needs to be reset
-			theDeck = freshDeck; //make copy of constant freshDeck
-			// the player and dealer hands need to be reset
-			playersHand = [];
-			dealersHand = [];
-			// reset the DOM
-			// 	-cards
-			$('.card').html('');
-			// 	-totals
-			playerTotal = calculateTotal('player', playersHand);
-			dealerTotal = calculateTotal('dealer', dealersHand);
-		}
-
-
-
-		function shuffleDeck(){
-				for(let i = 0; i < 90; i++){
-					var card1ToSwitch = Math.floor(Math.random() * theDeck.length);
-					var card2ToSwitch = Math.floor(Math.random() * theDeck.length);
-					var temp = theDeck[card1ToSwitch];
-					theDeck[card1ToSwitch] = theDeck[card2ToSwitch]
-					theDeck[card2ToSwitch] = temp;
-					console.log(theDeck);
-				}
-			}

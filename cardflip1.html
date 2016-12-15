@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+
+	<link rel="stylesheet" type="text/css" href="css/cardflip1.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script type="text/javascript">
+	$(document).ready(function(){
+		$('.face-holder').click(function(){
+			$(this).toggleClass('flip');
+
+		})
+
+	})
+
+
+// // function selectCard(who, where, whatCard){
+// 	var selectCard = '.' + who + '-cards .card-' + where;
+// 	// $(selectCard). ('<img src="cards/' + whatCard + '.png">');
+	
+// }
+
+// $('.deal-button').click(function(){
+// 	$(selectCard).toggleClass('flip');
+// })
+
+
+	</script>
+</head>
+<body>
+
+	<div class="card">
+		<div class="face-holder">
+			<div class="card-face">
+				<img src="cards/13s.png">
+			</div>
+
+			<div class="card-back">
+				<img src="cards/deck.png">
+			</div>
+		</div>
+
+	</div>
+
+
+
+
+
+
+
+'<div class="card"><div class="face-holder"><div class="card-face"><img src="cards/13s.png"></div><div class="card-back"><img src="cards/deck.png"></div></div></div>'
+
+
+
+
+</body>
+</html>
