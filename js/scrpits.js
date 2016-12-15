@@ -1,7 +1,7 @@
 //----------------------
 // ----GLOBALS----------
 //----------------------
-
+var stand = false;
 var theDeck = createDeck();
 var playersHand = [] //player1Squares in tictactoe
 var dealersHand = [] //player2Squares in tictactoe
@@ -34,8 +34,8 @@ $(document).ready(function(){
 		placeCard('dealer',2,'deck');
 
 		calculateTotal(playersHand,'player');
-		calculateTotal(dealersHand,'dealer');
-
+		// calcDealerOnDraw(dealersHand[0],'dealer');
+		calculateTotal(dealersHand.slice(0,-1), 'dealer')
 
 	});
 
@@ -50,12 +50,15 @@ $(document).ready(function(){
 			calculateTotal(playersHand, 'player');
 		}
 		checkWin();
+		calculateTotal(dealersHand.slice(0,-1), 'dealer')
+
 	});
 
 	$('.stand-button').click(function(){
 		// stand stuff goes in here
 		// What happens to player now? Nothing.
 		// Control now goes to teh dealer... if dealer has less than 17, draw card.
+		stand = true;
 		placeCard('dealer',2,dealersHand[1]);
 		var dealerTotal = calculateTotal(dealersHand,'dealer');
 		while(dealerTotal < 17){
@@ -79,32 +82,36 @@ function checkWin(){
 	// player has more than 21. Player busts, and loses.
 	if(playerTotal > 21){
 		//Player busted. Put some message in the DOM
-		$('.player-total').html('Player busted, the house wins!')
+		$('.player-total').html('Player busted, General Neyland wins!')
 	//Deler busted, player is good, player wins.
 	}else if(dealerTotal > 21){
 		// Player safe, dealer busts, put message in DOM
-		$('.dealer-total').html('Dealer busted, Player wins!')
+		$('.dealer-total').html('General Neyland busted, Player wins!')
 	//No one busted. See who is higher
 	}else{
-		if((playerTotal > dealerTotal) && (dealerTotal > 16)){
-			// Player won. Say this somewhere in the DOM
-			$('.player-total').html('Player wins!')
-		}else if((dealerTotal > playerTotal) && (dealerTotal > 16)){
-			// Dealer won. Say this somewhere in the DOM
-			$('.dealer-total').html('House wins!')
-		}else{
-			// Tie (push). Say somewhere in the DOM
-			$('.dealer-total').html('Tie, House wins!')
-			$('.player-total').html('Tie, House wins!!')
+		if(stand){
+			if(playerTotal > dealerTotal){
+				// Player won. Say this somewhere in the DOM
+				$('.player-total').html('Player wins!')
+			}else if(dealerTotal > playerTotal){
+				// Dealer won. Say this somewhere in the DOM
+				$('.dealer-total').html('General Neyland wins!')
+			}else{
+				// Tie (push). Say somewhere in the DOM
+				$('.dealer-total').html('Tie, General Neyland wins!')
+				$('.player-total').html('Tie, General Neyland wins!')
 
-
+			}
 
 		}
 	}
+
+
 }
 
 function reset(){
 	// the deck needs to be reset
+	stand = false;
 	theDeck = createDeck(); 
 	// the player and dealer hands need to be reset
 	playersHand = [];
@@ -112,7 +119,7 @@ function reset(){
 	// reset the DOM
 	// - cards
 	$('.card').html('');
-	$('.dealer-total').html('DEALER TOTAL: <span class="dealer-total-number">0</span>')
+	$('.dealer-total').html('NEYLAND TOTAL: <span class="dealer-total-number">0</span>')
 	$('.player-total').html('PLAYER TOTAL: <span class="player-total-number">0</span>')
 	// - totals
 	var playerTotal = calculateTotal(playersHand,'player');
@@ -159,6 +166,10 @@ function placeCard(who, where, whatCard){
 	// $('.player-cards .card-one').html('<img src="cards/2d.png">')
 	// if(classSelector = 'dealer- card card-2' )
 }
+
+// function calcDealerOnDraw( , who){
+// 	dealersHand[0]
+// }
 
 function calculateTotal(hand, who){
 	var total = 0; // init total to 0

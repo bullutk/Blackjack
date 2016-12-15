@@ -15,8 +15,8 @@ body{
 	background-repeat: no-repeat;
 	border: black 5px solid;
 	border-radius: 10px;
-	border-bottom-left-radius: 45%;
-	border-bottom-right-radius: 45%;
+	border-bottom-left-radius: 50%;
+	border-bottom-right-radius: 50%;
 	margin-top: 75px;
 	padding: 30px 0px;
 	transform: perspective(1200px) rotateX(35deg);
@@ -36,7 +36,7 @@ body{
 	font-size: 30px;
 	font-family: impact;
 	color: #FF8200;
-	text-shadow: 2px 2px white;
+	text-shadow: 2px 2px black;
 }
 h1{
 	font-size: 100px;
